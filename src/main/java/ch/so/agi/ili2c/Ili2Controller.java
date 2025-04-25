@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -31,6 +32,7 @@ import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.basics.logging.StdListener;
 import ch.interlis.ili2c.Ili2c;
 import ch.interlis.ili2c.Ili2cException;
+import ch.interlis.ili2c.Ili2cFailure;
 import ch.interlis.ili2c.Ili2cSettings;
 import ch.interlis.ili2c.config.Configuration;
 import ch.interlis.ili2c.metamodel.TransferDescription;
@@ -42,15 +44,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public class Ili2Controller {
     private Logger log = LoggerFactory.getLogger(this.getClass());
     
-    @Value("${app.workDirectory}")
-    private String workDirectory;
-
-    private ObjectMapper objectMapper;
-
-    public Ili2Controller(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
     @GetMapping("/ping")
     public ResponseEntity<String> ping(@RequestHeader Map<String, String> headers, HttpServletRequest request) {
         headers.forEach((key, value) -> {
@@ -59,7 +52,6 @@ public class Ili2Controller {
         
         log.info("server name: " + request.getServerName());
         log.info("context path: " + request.getContextPath());
-        
         log.info("ping"); 
         
         return new ResponseEntity<String>("ili2c-web-service", HttpStatus.OK);
@@ -67,7 +59,6 @@ public class Ili2Controller {
 
     @PostMapping(value = "/api/compile", consumes = {"multipart/form-data"}, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> compile(@RequestPart(name = "file", required = true) MultipartFile file) {
-    
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please select a file to upload.");
         }
@@ -79,13 +70,15 @@ public class Ili2Controller {
             
             file.transferTo(iliFile);
             boolean valid = runCompiler(iliFile, logFile);
+            String logContent = Files.readString(logFile);
+            
+            FileSystemUtils.deleteRecursively(iliFile.getParent());
             
             if (valid) {
-                return ResponseEntity.ok(Map.of("success", Files.readString(logFile)));
+                return ResponseEntity.ok(logContent);
             } else {
-                return ResponseEntity.ok(Map.of("failure", Files.readString(logFile)));
+                return ResponseEntity.internalServerError().body(logContent);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -93,10 +86,7 @@ public class Ili2Controller {
     }
     
     private synchronized boolean runCompiler(Path iliFile, Path logFile) throws IOException {
-        EhiLogger.getInstance().removeListener(StdListener.getInstance());
-
-        FileLogger fileLogger = new FileLogger(logFile.toFile(), true);
-        
+        FileLogger fileLogger = new FileLogger(logFile.toFile(), false);
         EhiLogger.getInstance().addListener(fileLogger);
 
         IliManager manager = new IliManager();        
@@ -106,27 +96,28 @@ public class Ili2Controller {
         Configuration config;
         try {
             EhiLogger.logState("ili2c"+"-"+TransferDescription.getVersion());
-
-            
             config = manager.getConfigWithFiles(ilifiles);
-            TransferDescription td = Ili2c.runCompiler(config);
-            
-            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date today = new Date();
-            String dateOut = dateFormatter.format(today);
-
-            if (td == null) {
-                EhiLogger.logError("...compiler run failed "+dateOut);
-                return false;
-            } else {
-                EhiLogger.logState("...compiler run done "+dateOut);
-                return true;
-            }
         } catch (Ili2cException e) {
-            e.printStackTrace();
             throw new IOException(e.getMessage());
-        } finally {
+        } 
+        
+        TransferDescription td = null;
+        try {
+            td = Ili2c.runCompiler(config);
+        } catch (Ili2cFailure e) {}
+        
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date today = new Date();
+        String dateOut = dateFormatter.format(today);
+
+        if (td == null) {
+            EhiLogger.logError("...compiler run failed "+dateOut);
             EhiLogger.getInstance().removeListener(fileLogger);
+            return false;
+        } else {
+            EhiLogger.logState("...compiler run done "+dateOut);
+            EhiLogger.getInstance().removeListener(fileLogger);
+            return true;
         }
     }
 }

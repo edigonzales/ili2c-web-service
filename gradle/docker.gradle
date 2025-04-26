@@ -34,8 +34,8 @@ tasks.register('buildAndPushMultiArchImage', Exec) {
                 '--label', "ili2c-web-service.created=$build_timestamp", 
                 '--label', "ili2c-web-service.git_commit=$githash",
                 '--label', "ili2c-web-service.version=$version",
-                //'-f', 'Dockerfile',  '.', '--push'
-                '-f', 'Dockerfile',  '.'
+                '-f', 'Dockerfile',  '.', '--push'
+                //'-f', 'Dockerfile',  '.'
 }
 
 def getCheckedOutGitCommitHash() {

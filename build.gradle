@@ -80,7 +80,7 @@ publishing {
                 scm {
                     connection = "scm:git:https@github.com/edigonzales/ili2c-web-service"
                     developerConnection = "scm:git:https@github.com/edigonzales/ili2c-web-service"
-                    url = "https://github.com/edigonzales/iliPrettyPrint"
+                    url = "https://github.com/edigonzales/ili2c-web-service"
                 }
                 licenses {
                     license {

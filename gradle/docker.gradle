@@ -1,0 +1,48 @@
+tasks.register('copyNativeImage', Copy) {
+    //dependsOn 'nativeCompile'
+    from file("$buildDir/native/nativeCompile/kartenkatalog")
+    into file("$projectDir/docker/image/tmp")
+}
+
+// tasks.register('buildNativeDockerImage', Exec) {
+//     dependsOn 'copyNativeImage'
+//     def githash = getCheckedOutGitCommitHash()
+//     def build_timestamp = getTimestamp()
+
+//     workingDir "$projectDir/docker/image"
+//     commandLine 'docker', 'build',
+//                 '--no-cache', '--force-rm',
+//                 '-t', "sogis/datahub:latest",
+//                 '-f', 'Dockerfile.alpine',  '.'
+// }
+
+// Wird sich noch ändern, wenn wir JVM-Image herstellen
+// und Docker-Image testen wollen.
+
+tasks.register('buildNativeDockerImage', Exec) {
+    dependsOn 'copyNativeImage'
+    def githash = getCheckedOutGitCommitHash()
+    def build_timestamp = getTimestamp()
+
+    // TODO add ghcr.io 
+    workingDir "$projectDir/docker/image"
+    commandLine 'docker', 'buildx', 'build',
+                '--platform', 'linux/amd64',
+                '-t', "sogis/kartenkatalog:$version.major",
+                '-t', "sogis/kartenkatalog:$version.major.$version.minor",
+                '-t', "sogis/kartenkatalog:$version.major.$version.minor.$version.build",
+                '-t', "sogis/kartenkatalog:latest",
+                '--label', "kartenkatalog.created=$build_timestamp", 
+                '--label', "kartenkatalog.git_commit=$githash",
+                '--label', "kartenkatalog.version=$version",
+                '-f', 'Dockerfile.native',  '.', '--push'
+}
+
+def getCheckedOutGitCommitHash() {
+    'git log -1 --pretty=%H'.execute().text.trim()
+}
+
+def getTimestamp() {
+    def date = new Date()
+    return date.format('yyyy-MM-dd HH:mm:ss')
+}

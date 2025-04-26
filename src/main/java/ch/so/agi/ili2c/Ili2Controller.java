@@ -1,10 +1,8 @@
 package ch.so.agi.ili2c;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -115,11 +112,11 @@ public class Ili2Controller {
         String dateOut = dateFormatter.format(today);
 
         if (td == null) {
-            EhiLogger.logError("...compiler run failed "+dateOut);
+            EhiLogger.logError("...compiler run failed " + dateOut);
             EhiLogger.getInstance().removeListener(fileLogger);
             return false;
         } else {
-            EhiLogger.logState("...compiler run done "+dateOut);
+            EhiLogger.logState("...compiler run done " + dateOut);
             EhiLogger.getInstance().removeListener(fileLogger);
             return true;
         }

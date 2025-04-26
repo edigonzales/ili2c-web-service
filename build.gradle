@@ -6,7 +6,17 @@ plugins {
     id 'org.graalvm.buildtools.native' version '0.10.6'
 }
 
+apply from: "$rootDir/gradle/versioning.gradle"
+apply from: "$rootDir/gradle/docker.gradle"
+
 group = 'ch.so.agi'
+
+ext {
+    compilerVersion = "5.6.3"
+    emailNotification = "build@master.org"
+}
+
+version = "${compilerVersion}-${buildNumber}"
 
 java {
     toolchain {
@@ -30,8 +40,10 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     
-    implementation 'ch.interlis:ili2c-core:5.6.3'
-    implementation 'ch.interlis:ili2c-tool:5.6.3'
+    implementation "ch.interlis:ili2c-core:${compilerVersion}"
+    implementation "ch.interlis:ili2c-tool:${compilerVersion}"
+    implementation 'ch.ehi:ehibasics:1.4.1'
+    implementation 'ch.interlis:iox-ili:1.23.4'
 }
 
 tasks.named('test') {

@@ -45,3 +45,10 @@ jobs:
       - name: Build Docker Image 
         run: |
           ./gradlew buildAndPushMultiArchImage
+
+      - name: Publish war file (RELEASE)
+        if: ${{ success() && (github.ref == 'refs/heads/main')}}
+        run: ./gradlew -i publishToSonatype closeAndReleaseSonatypeStagingRepository -Psigning.keyId=${{secrets.SIGNING_KEY_ID}} -Psigning.password=${{secrets.SIGNING_PASSWORD}} -Psigning.secretKeyRingFile=$(echo ~/.gradle/sonatype_upload.gpg) -Drelease=
+        env:
+          OSSRH_USERNAME: ${{secrets.OSSRH_USERNAME}}
+          OSSRH_PASSWORD: ${{secrets.OSSRH_PASSWORD}} 

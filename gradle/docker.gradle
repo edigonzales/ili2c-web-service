@@ -1,6 +1,6 @@
 tasks.register('copyWar', Copy) {
     dependsOn 'bootWar'
-    from file("$buildDir/libs/ili2c-web-service-${compilerVersion}-${buildNumber}.war")
+    from file("$buildDir/libs/ili2c-web-service-${compilerVersion}-${buildNumber}-plain.war")
     into file("$projectDir/docker/image/tmp")
 }
 

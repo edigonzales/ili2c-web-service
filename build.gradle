@@ -68,8 +68,8 @@ tasks.register('javadocJar', Jar) {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
             from components.web
+            artifact jar
             artifact sourcesJar
             artifact javadocJar
 

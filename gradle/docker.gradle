@@ -1,6 +1,6 @@
-tasks.register('copyNativeImage', Copy) {
-    //dependsOn 'nativeCompile'
-    from file("$buildDir/native/nativeCompile/kartenkatalog")
+tasks.register('copyWar', Copy) {
+    dependsOn 'bootWar'
+    from file("$buildDir/libs/ili2c-web-service-${compilerVersion}-${buildNumber}.war")
     into file("$projectDir/docker/image/tmp")
 }
 
@@ -16,26 +16,26 @@ tasks.register('copyNativeImage', Copy) {
 //                 '-f', 'Dockerfile.alpine',  '.'
 // }
 
-// Wird sich noch ändern, wenn wir JVM-Image herstellen
-// und Docker-Image testen wollen.
+// Wird sich noch ändern, wenn wir Docker-Image testen wollen.
 
-tasks.register('buildNativeDockerImage', Exec) {
-    dependsOn 'copyNativeImage'
+tasks.register('buildAndPushMultiArchImage', Exec) {
+    dependsOn 'copyWar'
     def githash = getCheckedOutGitCommitHash()
     def build_timestamp = getTimestamp()
 
     // TODO add ghcr.io 
     workingDir "$projectDir/docker/image"
     commandLine 'docker', 'buildx', 'build',
-                '--platform', 'linux/amd64',
-                '-t', "sogis/kartenkatalog:$version.major",
-                '-t', "sogis/kartenkatalog:$version.major.$version.minor",
-                '-t', "sogis/kartenkatalog:$version.major.$version.minor.$version.build",
-                '-t', "sogis/kartenkatalog:latest",
-                '--label', "kartenkatalog.created=$build_timestamp", 
-                '--label', "kartenkatalog.git_commit=$githash",
-                '--label', "kartenkatalog.version=$version",
-                '-f', 'Dockerfile.native',  '.', '--push'
+                '--platform', 'linux/amd64,linux/arm64',
+                '-t', "sogis/ili2c-web-service:0",
+                '-t', "sogis/ili2c-web-service:0.0",
+                '-t', "sogis/ili2c-web-service:0.0.$buildNumber",
+                '-t', "sogis/ili2c-web-service:latest",
+                '--label', "ili2c-web-service.created=$build_timestamp", 
+                '--label', "ili2c-web-service.git_commit=$githash",
+                '--label', "ili2c-web-service.version=$version",
+                //'-f', 'Dockerfile',  '.', '--push'
+                '-f', 'Dockerfile',  '.'
 }
 
 def getCheckedOutGitCommitHash() {

@@ -44,6 +44,9 @@ import jakarta.servlet.http.HttpServletRequest;
 public class Ili2Controller {
     private Logger log = LoggerFactory.getLogger(this.getClass());
     
+    @Value("${app.ilidirs}")
+    private String ilidirs;
+    
     @GetMapping("/ping")
     public ResponseEntity<String> ping(@RequestHeader Map<String, String> headers, HttpServletRequest request) {
         headers.forEach((key, value) -> {
@@ -90,7 +93,8 @@ public class Ili2Controller {
         EhiLogger.getInstance().addListener(fileLogger);
 
         IliManager manager = new IliManager();        
-        manager.setRepositories(Ili2cSettings.DEFAULT_ILIDIRS.split(";"));
+        //manager.setRepositories(Ili2cSettings.DEFAULT_ILIDIRS.split(";"));
+        manager.setRepositories(ilidirs.split(";"));
         ArrayList<String> ilifiles = new ArrayList<String>();
         ilifiles.add(iliFile.toAbsolutePath().toString());
         Configuration config;

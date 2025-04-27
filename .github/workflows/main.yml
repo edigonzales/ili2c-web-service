@@ -5,6 +5,7 @@ on:
   push:
     paths-ignore:
       - '**.md'
+      - 'stack/**'
 
 jobs:
   build-jvm:

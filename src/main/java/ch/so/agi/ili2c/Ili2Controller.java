@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +38,7 @@ import ch.interlis.ilirepository.IliManager;
 import ch.interlis.iox_j.logging.FileLogger;
 import jakarta.servlet.http.HttpServletRequest;
 
-@RestController
+@Controller
 public class Ili2Controller {
     private Logger log = LoggerFactory.getLogger(this.getClass());
     
@@ -58,7 +59,14 @@ public class Ili2Controller {
     }
 
     @PostMapping(value = "/api/compile", consumes = {"multipart/form-data"}, produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> compile(@RequestPart(name = "file", required = true) MultipartFile file) {
+    public ResponseEntity<?> compile(@RequestPart(name = "file", required = true) MultipartFile file, @RequestHeader Map<String, String> headers) {
+        
+        headers.forEach((key, value) -> {
+            log.info(String.format("Header '%s' = %s", key, value));
+        });
+
+        
+        
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please select a file to upload.");
         }

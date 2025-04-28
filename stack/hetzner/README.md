@@ -42,5 +42,5 @@ cd && git clone https://github.com/edigonzales/ili2c-web-service.git
 ```
 
 ```
-docker compose -f ili2c-web-service/stack/hetzner/docker-compose.yml -p ili2c-web-service
+docker compose -f ili2c-web-service/stack/hetzner/docker-compose.yml -p ili2c-web-service up
 ```

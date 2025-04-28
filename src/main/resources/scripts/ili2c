@@ -15,8 +15,8 @@ if [ ! -f "$FILE" ]; then
 fi
 
 # Send the file to the server
-#response=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -F "file=@${FILE}" https://ili2c.sogeo.services/api/compile)
-response=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -F "file=@${FILE}" http://localhost:8080/api/compile)
+response=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -F "file=@${FILE}" https://ili2c.sogeo.services/api/compile)
+#response=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -F "file=@${FILE}" http://localhost:8080/api/compile)
 
 # Separate the body and the status
 body=$(echo "$response" | sed -e 's/HTTPSTATUS\:.*//g')

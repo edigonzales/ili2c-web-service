@@ -65,8 +65,6 @@ public class Ili2Controller {
             log.info(String.format("Header '%s' = %s", key, value));
         });
 
-        
-        
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please select a file to upload.");
         }

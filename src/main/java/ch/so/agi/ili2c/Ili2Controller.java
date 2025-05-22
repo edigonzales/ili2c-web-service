@@ -59,12 +59,7 @@ public class Ili2Controller {
     }
 
     @PostMapping(value = "/api/compile", consumes = {"multipart/form-data"}, produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> compile(@RequestPart(name = "file", required = true) MultipartFile file, @RequestHeader Map<String, String> headers) {
-        
-        headers.forEach((key, value) -> {
-            log.info(String.format("Header '%s' = %s", key, value));
-        });
-
+    public ResponseEntity<?> compile(@RequestPart(name = "file", required = true) MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please select a file to upload.");
         }

@@ -14,9 +14,8 @@ MODEL SO_DSBJD_eBauSO_Geschaefte_20250422 (de)
 AT "https://bjd.so.ch"
 VERSION "2025-04-22"  =
   IMPORTS GeometryCHLV95_V2;
-  
-  DOMAIN
 
+  DOMAIN
     !! TODO Aufzähltypen: Falls es nicht geht, muss es in der Darstellung ein "andere" geben und hässlich einfärben.
 
     /** Status des Geschäfts. Aufzähltyp, damit nach Status garantiert gefiltert/eingefärbt werden kann.

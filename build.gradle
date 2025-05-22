@@ -14,7 +14,6 @@ ext {
 }
 
 apply from: "$rootDir/gradle/versioning.gradle"
-apply from: "$rootDir/gradle/docker.gradle"
 
 group = 'io.github.sogis'
 
